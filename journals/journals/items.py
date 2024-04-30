@@ -9,4 +9,10 @@ import scrapy
 class JournalsItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    title = scrapy.Field()
+    authors = scrapy.Field()
+    publish_date = scrapy.Field()
+    journal_name = scrapy.Field()
+    doi = scrapy.Field()
+    citations = scrapy.Field()
+    
