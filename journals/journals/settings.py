@@ -17,11 +17,12 @@ from shutil import which
   
 SELENIUM_DRIVER_NAME = 'chrome'
 SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
-# SELENIUM_DRIVER_ARGUMENTS=['--headless']  
+SELENIUM_DRIVER_ARGUMENTS=['--headless']  
   
-DOWNLOADER_MIDDLEWARES = {
-     'scrapy_selenium.SeleniumMiddleware': 800
-     }
+
+FEEDS = {
+   'booksdata.json': {'format': 'json'},
+}
 
 SCRAPEOPS_API_KEY = 'e84f32f6-e466-4396-a311-7cf84bf0fbe1'
 SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = 'https://headers.scrapeops.io/v1/browser-headers'
