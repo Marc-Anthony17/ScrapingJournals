@@ -21,9 +21,9 @@ async def fetch_page_content(url, semaphore):
             await browser.close()
             return content
 
-async def main(urls, max_concurrent_tasks=5):
+async def main(urls, max_concurrent_tasks=10):
     # Create a directory for the output if it doesn't exist
-    if not os.path.exists('html'):
+    if not os.path.exists('html2'):
         os.makedirs('html')
     
     semaphore = asyncio.Semaphore(max_concurrent_tasks)
@@ -34,6 +34,8 @@ async def main(urls, max_concurrent_tasks=5):
         tasks.append(task)
     
     for i, task in enumerate(asyncio.as_completed(tasks)):
+        if i < 42699:
+            continue
         content = await task
         with open(f'html/output_{i}.html', 'w', encoding="utf-8") as f:
             f.write(content)
