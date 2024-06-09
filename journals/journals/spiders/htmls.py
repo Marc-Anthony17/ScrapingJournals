@@ -7,6 +7,18 @@ import os
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+CHECKPOINT_FILE = 'checkpoint.txt'
+
+def load_checkpoint():
+    if os.path.exists(CHECKPOINT_FILE):
+        with open(CHECKPOINT_FILE, 'r', encoding="utf-8") as f:
+            return set(line.strip() for line in f)
+    return set()
+
+def save_checkpoint(url):
+    with open(CHECKPOINT_FILE, 'a', encoding="utf-8") as f:
+        f.write(url + '\n')
+
 async def fetch_page_content(url, semaphore, retries=3):
     async with semaphore:
         for attempt in range(1, retries + 1):
@@ -28,24 +40,30 @@ async def fetch_page_content(url, semaphore, retries=3):
                     logging.error(f'Failed to fetch {url} after {retries} attempts')
                     return None
 
-async def main(urls, max_concurrent_tasks=5):
+async def main(urls, max_concurrent_tasks=8):
     # Create a directory for the output if it doesn't exist
     if not os.path.exists('html'):
         os.makedirs('html')
-    if os.path.exists(f'html/output_{i}.html'):
-        return
+
+    # Load checkpoint
+    completed_urls = load_checkpoint()
+
     semaphore = asyncio.Semaphore(max_concurrent_tasks)
     
     tasks = []
     for url in urls:
+        if url in completed_urls:
+            logging.info(f'Skipping {url} as it is already processed')
+            continue
         task = asyncio.create_task(fetch_page_content(url, semaphore))
-        tasks.append(task)
+        tasks.append((url, task))
     
-    for i, task in enumerate(asyncio.as_completed(tasks)):
+    for i, (url, task) in enumerate(asyncio.as_completed([task for url, task in tasks])):
         content = await task
         if content:
             with open(f'html/output_{i}.html', 'w', encoding="utf-8") as f:
                 f.write(content)
+            save_checkpoint(url)
             logging.info(f'Completed {i+1}/{len(urls)}')
         else:
             logging.warning(f'Skipped {i+1}/{len(urls)} due to errors')
