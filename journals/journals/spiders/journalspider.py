@@ -44,3 +44,6 @@ class JournalspiderSpider(scrapy.Spider):
             yield response.follow(next_url, callback=self.parse)
     def clean(self,text):
         text.replace("\n", "").strip()
+
+
+############################################################################################################
